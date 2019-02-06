@@ -1,0 +1,66 @@
+snippet article 
+\documentclass[german,12pt]{article}
+\usepackage{babel}
+\usepackage{booktabs}
+\usepackage[utf8]{inputenc}
+\usepackage{babelbib}
+\usepackage{url}
+\usepackage{translator}
+\usepackage{pgfgantt}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{patterns}
+\def\UrlBreaks{\do\/\do-}
+\begin{document}
+\title{$1}
+\author{Fanny Albrecht}
+\date{\today}
+\maketitle
+
+\bibliographystyle{babplain-lf}
+\clearpage
+\bibliography{../referenzen}
+\end{document}
+endsnippet
+
+snippet * 
+\item 
+endsnippet
+
+snippet note 
+\note{%
+	$1
+}
+endsnippet
+
+
+snippet beamer 
+\documentclass[german,12pt]{beamer}
+\usepackage{babel}
+\usepackage{booktabs}
+\usepackage[utf8]{inputenc}
+\usepackage{babelbib}
+\usepackage{url}
+\usepackage{translator}
+\usepackage{pgfgantt}
+\usepackage{enumitem}
+\usepackage{/home/fanny/Uni/beamercolorthemesolarized}
+\usepackage{tikz}
+\usecolortheme{solarized}
+\usetikzlibrary{patterns}
+\def\UrlBreaks{\do\/\do-}
+\begin{document}
+\title{$1}
+\institute{LFU Innsbruck}
+\author{Fanny Albrecht}
+\date{\today}
+\maketitle
+\begin{document}
+\frame{\titlepage}
+\end{document}
+
+\bibliographystyle{babplain-lf}
+\clearpage
+\bibliography{../referenzen}
+\end{document}
+endsnippet
