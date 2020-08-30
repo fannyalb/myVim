@@ -1,0 +1,31 @@
+snippet theorem "description"
+
+[env.theorem]
+--
+\[
+$1
+\]
+--
+endsnippet
+
+snippet frac "Bruch"
+\frac{$1}{$2}
+endsnippet
+
+snippet im "Inline Math"
+latexmath:[$1]
+endsnippet
+
+snippet bm "Block Math: Creates Latex Block Formula" 
+
+[latexmath]
+++++++++++++
+$1
+++++++++++++
+endsnippet
+
+snippet img "Insert Image" b
+image::$1[$2]
+endsnippet
+	
+	

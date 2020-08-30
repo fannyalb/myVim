@@ -4,6 +4,13 @@ set shiftwidth=2
 set tabstop=2
 inoremap *<space> \item 
 
+imap "a ä
+imap "o ö
+imap "u ü
+imap "s ß
+imap "A Ä
+imap "U Ü
+
 
 " au BufEnter * call ncm2#enable_for_buffer()
 " au User Ncm2Plugin call ncm2#register_source({
@@ -18,4 +25,8 @@ inoremap *<space> \item
 "             \ 'on_complete': ['ncm2#on_complete#omni', 'vimtex#complete#omnifunc'],
 "             \ })
 " set completeopt=noinsert,menuone,noselect
+
+
+
+
 

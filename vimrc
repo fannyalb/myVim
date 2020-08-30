@@ -1,3 +1,8 @@
+" 2019-04-25 author
+" =============================
+" Plugin Management
+" =============================
+
 set nocompatible		" required for vujjndle
 filetype off			" required for vundle
 
@@ -10,8 +15,14 @@ else
 	set rtp+=~/.vim/bundle/Vundle.vim/
 endif
 
-call vundle#begin()
-call vundle#rc(s:editor_root . '/bundle')
+if has("win32")
+	set rtp+=$HOME/vimfiles/bundle/Vundle.vim/
+	call vundle#begin('$USERPROFILE/vimfiles/bundle/')
+else
+	set rtp+=~/.vim/bundle/Vundle.vim/
+	call vundle#rc(s:editor_root . '/bundle')
+	call vundle#begin()
+endif
 
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
@@ -21,26 +32,25 @@ Plugin 'SirVer/ultisnips'				" Snippets Engine
 Plugin 'honza/vim-snippets'				" Predefined snippets
 Plugin 'tpope/vim-surround'				" Surround vim 
 Plugin 'tpope/vim-repeat'				" Surround vim 
-Plugin 'vim-airline/vim-airline'		" Statusline
-Plugin 'vim-airline/vim-airline-themes'	" Statusline-Themes
-Plugin 'scrooloose/nerdcommenter'
+Plugin 'tpope/vim-fugitive'				" Vim Wrapper for Git
+Plugin 'tpope/vim-sensible'				" Vim Defaults everyone can agree on
+Plugin 'tpope/vim-unimpaired'			" mappings for next and prev
+Plugin 'tpope/vim-commentary'			" mappings for next and prev
 Plugin 'scrooloose/nerdtree'
-Plugin 'dahu/vim-asciidoc'			"Asciidoc for vim
-Plugin 'dahu/vimple'				"Needed for Asciidoc for vim
-Plugin 'dahu/Asif'					"Needed for Asciidoc for vim
-Plugin 'Raimondi/VimRegStyle'		"Needed for Asciidoc for vim
-Plugin 'vim-scripts/SyntaxRange'	"Needed for Asciidoc for vim
+Plugin 'cpp.vim'
+Plugin 'peterhoeg/vim-qml'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'matze/vim-tex-fold'
 Plugin 'tmhedberg/SimpylFold'		" Folding
-Plugin 'vim-scripts/indentpython'		" Python Intedation
-Plugin 'nvie/vim-flake8'			" Python PEP8 Syntax checking
-Plugin 'valloric/YouCompleteMe'		" Code Completition	
-Plugin 'ervandew/supertab'		" Using TAb better
-
-
+Plugin 'vim-scripts/indentpython'	" Python Intedation
+Plugin 'hail2u/vim-css3-syntax'
+Plugin 'neovimhaskell/haskell-vim'
+Plugin 'bitc/vim-hdevtools' 		" Haskell
 call vundle#end()
 
+" =============================
+" General Settings and Mappings
+" =============================
 
 """ Settings
 
@@ -67,21 +77,26 @@ set spelllang=de_at,en_us
 set background=dark
 set nospell
 set guifont=Monospace\ 12
-syntax on
+set relativenumber
 colorscheme solarized
 filetype plugin on 
-
+syntax on
 
 """ Mappings and Leader
-imap "a ä
-imap "o ö
-imap "u ü
-imap "s ß
-imap "A Ä
-imap "U Ü
-imap "O Ö
+if &ft =~ 'asciidoc\|adoc\|txt\|tex'
+	imap "a ä
+	imap "o ö
+	imap "u ü
+	imap "s ß
+	imap "A Ä
+	imap "U Ü
+	imap "O Ö
+endif
 
+
+""" Capitalize word
 nnoremap <C-G> wbg~l
+""" Navigating between split
 nnoremap <C-K> <C-W><C-K>
 nnoremap <C-J> <C-W><C-J>
 nnoremap <C-L> <C-W><C-L>
@@ -89,6 +104,19 @@ nnoremap <C-H> <C-W><C-H>
 let mapleader="\\"
 let maplocalleader="<space>"
 
+" Find next occurence and do the same as before
+" For multiple replacing
+nnoremap R @='n.'<CR>
+
+
+" jump to next error of ycm
+:nnoremap <F2> :lnext<CR>
+" Global replace of variable/function
+nnoremap gR gD:%s/<C-R>///gc<left><left><left>
+
+" Autocomplete more simple
+inoremap <C-X><C-N> <C-N>
+inoremap <C-X><C-P> <C-P>
 
 """ SHORTCUTS
 " Use ; for Command
@@ -97,55 +125,68 @@ nnoremap ; :
 nnoremap : ;
 " Use Q to execute default register  
 nnoremap Q @q
+" Autoclose Brackets
+" inoremap { {<CR>}<Esc>ko
+" inoremap ( ()<Esc>i
+" inoremap [ []<Esc>i
+" inoremap " ""<Esc>i
+" inoremap <expr> ) strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")" 
+" inoremap <expr> ] strpart(getline('.'), col('.')-1, 1) == "]" ? "\<Right>" : "]" 
+" inoremap <expr> } strpart(getline('.'), col('.')-1, 1) == "}" ? "\<Right>" : "}" 
+" inoremap <expr> \" strpart(getline('.'), col('.')-1, 1) == "\"" ? "\<Right>" : "\"" 
 
-""" Airline
-let g:airline_theme = 'solarized'
+
+" Properly display man pages
+runtime ftplugin/man.vim
+if has("gui_running")
+	nnoremap K :<C-U>exe "Man" v:count "<C-R><C-W>"<CR>
+endif
+
+" Mappings for Languages
+au FileType haskell nnoremap <buffer> <F1> :HdevtoolsType<CR>
+au FileType haskell nnoremap <buffer> <silent> <F2> :HdevtoolsInfo<CR>
+au FileType haskell nnoremap <buffer> <F3> :HdevtoolsClear<CR>
+
+" ===============
+" Status Line
+" ===============
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+
+" ===============
+" Autocmds
+" ===============
+if has("autocmd")
+	augroup templates
+		autocmd BufNewFile Makefile 0r ~/.vim/templates/skeleton.makefile
+	augroup END
+endif
+
+" ===============
+" Plugin Settings
+" ===============
 
 """ Vimtex
-let g:vimtex_compiler_progname = 'nvr'
+" let g:vimtex_compiler_progname = 'nvr'
 let g:Tex_SmartJeyQuote=0
 let g:vimtex_quickfix_methode="pplatex"
 let g:vimtex_quickfix_mode=2
 let g:vimtex_quickfix_autoclose_after_keystrokes=0
-
-""" make YCM compativle with UltiSnips (using Supertab)
-let g:ycm_key_list_select_completition = ['<C-n>', '<Down>']
-let g:ycm_key_list_previous_completition = ['<C-p>', '<Up>']
-let g:SuperTabDefaultCompletitionType = '<C-n>'
 
 
 """ Ultisnips
 let g:UltiSnipsExpandTrigger="<C-s>"
 let g:UltiSnipsJumpForwardTrigger="<tab>"
 let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
-let g:UltiSnipsEditSplit='contex'
+let g:UltiSnipsEditSplit='context'
+let g:UltiSnipsSnippetDirectories=['~/.vim/UltiSnips', 'UltiSnips']
 
 
-""" NerdCommenter
-" Add spaces after comment delimiters by default
-let g:NERDSpaceDelims = 1
-" Use compact syntax for prettified multi-line comments
-let g:NERDCompactSexyComs = 1
-" Align line-wise comment delimiters flush left instead of following code indentation
-let g:NERDDefaultAlign = 'left'
-" Set a language to use its alternate delimiters by default
-let g:NERDAltDelims_java = 1
-" Add your own custom formats or override the defaults
-let g:NERDCustomDelimiters = { 'c': { 'left': '/**','right': '*/' } }
-" Allow commenting and inverting empty lines (useful when commenting a region)
-let g:NERDCommentEmptyLines = 1
-" Enable trimming of trailing whitespace when uncommenting
-let g:NERDTrimTrailingWhitespace = 1
-" Enable NERDCommenterToggle to check all selected lines is commented or not 
-let g:NERDToggleCheckAllLines = 1
+""" Syntastic """
+let g:synstastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
 
-
-
-""" NerdCommenter
-noremap <C-d> :NERDTreeToggle<CR>
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-
-
-""" Ascciidoc
-autocmd Filetype asciidoc compiler asciidoctor
-autocmd Filetype adoc compiler asciidoctor
